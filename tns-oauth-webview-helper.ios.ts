@@ -26,6 +26,7 @@ export class TnsOAuthWebViewHelper extends NSObject implements UIWebViewDelegate
     }
 
     public webViewShouldStartLoadWithRequestNavigationType(webView: UIWebView, request: NSURLRequest, navigationType: number) {
+        this._checkCodeIntercept(webView, null, request.URL.absoluteString);
         return this._origDelegate.webViewShouldStartLoadWithRequestNavigationType(webView, request, navigationType);
     }
 
