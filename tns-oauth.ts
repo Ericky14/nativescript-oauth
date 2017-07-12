@@ -19,8 +19,8 @@ export var REFRESH_TOKEN_CACHE_KEY = 'REFRESH_TOKEN_CACHE_KEY';
 function getAuthHeaderFromCredentials(credentials: TnsOAuthModule.ITnsOAuthCredentials) {
     let customAuthHeader: any;
     if (credentials['basicAuthHeader']) {
-        customAuthHeader = {'Authorization': credentials['basicAuthHeader']};
-    } 
+        customAuthHeader = { 'Authorization': credentials['basicAuthHeader'] };
+    }
 
     return customAuthHeader;
 }
@@ -30,9 +30,9 @@ function getAuthHeaderFromCredentials(credentials: TnsOAuthModule.ITnsOAuthCrede
  * Gets a token for a given resource.
  */
 function getTokenFromCode(credentials: TnsOAuthModule.ITnsOAuthCredentials, code: string): Promise<TnsOAuthModule.ITnsOAuthTokenResult> {
-    
+
     let customAuthHeader: any = getAuthHeaderFromCredentials(credentials);
-    
+
     let oauth2 = new TnsOAuth(
         credentials.clientId,
         credentials.clientSecret,
@@ -58,9 +58,9 @@ function getTokenFromCode(credentials: TnsOAuthModule.ITnsOAuthCredentials, code
  * Gets a new access token via a previously issued refresh token.
  */
 export function getTokenFromRefreshToken(credentials: TnsOAuthModule.ITnsOAuthCredentials, refreshToken: string): Promise<TnsOAuthModule.ITnsOAuthTokenResult> {
-    
+
     let customAuthHeader: any = getAuthHeaderFromCredentials(credentials);
-    
+
     var oauth2 = new TnsOAuth(
         credentials.clientId,
         credentials.clientSecret,
@@ -107,18 +107,24 @@ export function loginViaAuthorizationCodeFlow(credentials: TnsOAuthModule.ITnsOA
 
         let checkCodeIntercept = (webView, error, url): boolean => {
             var retStr = '';
-
-            if (error && error.userInfo && error.userInfo.allValues && error.userInfo.allValues.count > 0) {
-                let val0 = error.userInfo.allValues[0];
-                if (val0.absoluteString) {
-                    retStr = error.userInfo.allValues[0].absoluteString;
-                } else {
-                    retStr = val0;
+            try {
+                if (error && error.userInfo && error.userInfo.allValues && error.userInfo.allValues.count > 0) {
+                    let val0 = error.userInfo.allValues[0];
+                    if (val0.absoluteString) {
+                        retStr = error.userInfo.allValues[0].absoluteString;
+                    } else if (val0.userInfo && val0.userInfo.allValues && val0.userInfo.allValues.count > 0) {
+                        retStr = val0.userInfo.allValues[0];
+                    } else {
+                        retStr = val0;
+                    }
+                } else if (url) {
+                    retStr = url;
+                } else if (webView.request && webView.request.URL && webView.request.URL.absoluteString) {
+                    retStr = webView.request.URL.absoluteString;
                 }
-            } else if (url) {
-                retStr = url;
-            } else if (webView.request && webView.request.URL && webView.request.URL.absoluteString) {
-                retStr = webView.request.URL.absoluteString;
+            }
+            catch (ex) {
+                reject('Failed to resolve return URL');
             }
 
             if (retStr != '') {
