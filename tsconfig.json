@@ -9,6 +9,7 @@
         "preserveConstEnums": true,
         "declaration": false,
         "suppressImplicitAnyIndexErrors": true,
+        "noEmitHelpers": true,
         "lib": [
             "es6",
             "dom"
